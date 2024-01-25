@@ -5,7 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 export const initatApp = (express, app) => {
   const port = process.env.PORT || 5000;
-
+  var whitelist = ["http://example1.com", "http://127.0.0.1:5500"];
   app.use(express.json());
   if (process.env.ENV_MODE == "DEV") {
     app.use(cors());
