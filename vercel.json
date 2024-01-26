@@ -5,11 +5,17 @@
         "src": "index.js",
         "use": "@vercel/node"
       }
+      
     ],
     "routes": [
       {
         "src": "/(.*)",
         "dest": "/"
       }
-    ]
+    ],
+    "functions": {
+      "yourFunction": {
+        "maxDuration": 30
+      }
+    }
   }
