@@ -12,13 +12,7 @@
         "src": "/(.*)",
         "dest": "/"
       }
-    ],"functions": {
-      "api/index.js": {
-        "maxDuration": 30 
-      },
-      "api/*.js": {
-        "maxDuration": 15 
-      }
-    }
+    ]
+    
     
   }
