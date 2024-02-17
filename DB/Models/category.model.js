@@ -22,7 +22,7 @@ const categorySchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Uesr",
-      required: false, //TODO converted to true after first cycle
+      required: true,
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }

@@ -9,7 +9,6 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-
       uniqe: true,
     },
     password: {
@@ -19,6 +18,16 @@ const userSchema = new Schema(
     role: {
       type: String,
       default: systemRoles.USER,
+    },
+    // =======================new field====================
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    typeOfUser: {
+      type: String,
+      required: true,
+      enum: ["owner of real estate", "marketing company", "other"],
     },
   },
   {

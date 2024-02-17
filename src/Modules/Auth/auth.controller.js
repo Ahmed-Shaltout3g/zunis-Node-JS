@@ -3,8 +3,10 @@ import { comparePassword, hashingPassword } from "../../utils/hashing.js";
 import { decodeToken, generateToken } from "../../utils/tokenFunctions.js";
 import bcrypt from "bcrypt";
 
+// ______________________________signUp___________________________
 export const signUp = async (req, res, next) => {
-  const { fullName, email, password, cpassword } = req.body;
+  const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
+    req.body;
   if (password == cpassword) {
     const user = await userModel.findOne({ email });
     if (user) {
@@ -14,22 +16,18 @@ export const signUp = async (req, res, next) => {
         fullName,
         email,
         password,
+        phoneNumber,
+        typeOfUser,
       });
 
-      const token = generateToken({
-        payload: {
-          newUser,
-        },
-      });
+      const user = await newUser.save();
 
-      if (token) {
-        await newUser.save();
-
+      if (user) {
         return res
           .status(201)
           .json({ message: "Sign up success please try to login" });
       } else {
-        next(new Error("Token generastion fail", { cause: 400 }));
+        next(new Error("fail", { cause: 400 }));
       }
     }
   } else {

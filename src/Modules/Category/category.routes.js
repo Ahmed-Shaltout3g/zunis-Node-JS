@@ -6,12 +6,15 @@ import { myMulter } from "../../services/multer.js";
 import allowedExtensions from "../../utils/allowedExtention.js";
 import * as validations from "./category.validation.js";
 import { validation } from "../../middleware/validation.js";
+import { Auth, authorization } from "../../middleware/auth.js";
+import { systemRoles } from "../../utils/systemRoles.js";
 
 router.post(
   "/create",
-
+  Auth(),
+  authorization([systemRoles.ADMIN, systemRoles.USER]),
   myMulter().single("image"),
-
+  validation(validations.createCategoryVaildation),
   asyncHandler(CategoryController.createCategory)
 );
 

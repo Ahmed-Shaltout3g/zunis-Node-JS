@@ -6,6 +6,7 @@ import productModel from "../../../DB/Models/product.model.js";
 
 // =============================craete category======================
 export const createCategory = async (req, res, next) => {
+  const { _id } = req.user;
   const { name } = req.body;
   const isNameDublicated = await categoryModel.findOne({ name });
   if (isNameDublicated) {
@@ -31,8 +32,9 @@ export const createCategory = async (req, res, next) => {
       public_id,
     },
     customId,
+    createdBy: _id,
   };
-  const createCtegory = await categoryModel.create(categoryObject);
+  const createCategory = await categoryModel.create(categoryObject);
   if (!createCategory) {
     await cloudinary.uploader.destroy(public_id); //delete the image
     await cloudinary.api.delete_folder(
@@ -137,7 +139,7 @@ export const deleteCategory = async (req, res, next) => {
 export const getAllCategory = async (req, res, next) => {
   const categories = await categoryModel.find().populate({
     path: "products",
-    select: "title _id",
+    select: "title location price",
   });
 
   if (categories.length) {

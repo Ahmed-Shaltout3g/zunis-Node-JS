@@ -1,16 +1,27 @@
 import cloudinary from "../../utils/cloudinaryConfigration.js";
 import productModel from "./../../../DB/Models/product.model.js";
-// import commentModel from "./../../../DB/model/comment.model.js";
-// import userModel from "../../../DB/model/user.model.js";
-// import { pagination } from "../../services/pagination.js";
+
 import { categoryModel } from "../../../DB/Models/category.model.js";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
+import { ApiFeature } from "../../utils/apiFeature.js";
 
 // =================create product=================
 
 export const createProduct = async (req, res, next) => {
-  const { title, caption, price, size, weight, discount } = req.body;
+  const { _id } = req.user;
+  const {
+    title,
+    section,
+    location,
+    youtubeURL,
+    descLocation,
+    rentDeatils,
+    propertyDesc,
+    PaymentMethod,
+    caption,
+    price,
+  } = req.body;
   const { categoryId } = req.query;
   const category = await categoryModel.findById(categoryId);
   if (!category) {
@@ -21,8 +32,6 @@ export const createProduct = async (req, res, next) => {
     lower: true,
     trim: true,
   });
-
-  const priceAfterDiscount = price * (1 - (discount || 0) / 100);
 
   if (!req.files.length) {
     return next(new Error("please upload product images", { cause: 400 }));
@@ -45,15 +54,18 @@ export const createProduct = async (req, res, next) => {
 
   const productObject = {
     title,
-    caption,
+    section,
     slug,
-    size,
-    customId,
-    weight,
+    location,
+    youtubeURL,
+    descLocation,
+    rentDeatils,
+    propertyDesc,
+    PaymentMethod,
+    caption,
     price,
-    discount,
-    priceAfterDiscount,
     Images: imagesArr,
+    createdBy: _id,
     categoryId,
   };
 
@@ -76,15 +88,28 @@ export const createProduct = async (req, res, next) => {
 // ============================update product ====================
 
 export const updateproduct = async (req, res, next) => {
-  const { title, caption, price, size, weight, discount } = req.body;
-  const { productId, categoryId } = req.query;
-  const category = await categoryModel.findById(categoryId);
-  if (!category) {
-    return next(new Error("invalid category id ", { cause: 404 }));
-  }
+  const { _id } = req.user;
+  const {
+    title,
+    section,
+    location,
+    youtubeURL,
+    descLocation,
+    rentDeatils,
+    propertyDesc,
+    status,
+    caption,
+    price,
+  } = req.body;
+  const { productId } = req.query;
+
   const product = await productModel.findById(productId);
   if (!product) {
     return next(new Error("invalid product id ", { cause: 404 }));
+  }
+  const category = await categoryModel.findById(product?.categoryId);
+  if (!category) {
+    return next(new Error("invalid category id ", { cause: 404 }));
   }
 
   if (title) {
@@ -98,22 +123,16 @@ export const updateproduct = async (req, res, next) => {
   }
 
   // ================  change price ==================
-
-  if (discount && price) {
-    const priceAfterDiscount = price * (1 - (discount || 0) / 100);
-    product.price = price;
-    product.priceAfterDiscount = priceAfterDiscount;
-    product.discount = discount;
-  } else if (price) {
-    const priceAfterDiscount = price * (1 - (product.discount || 0) / 100);
-    product.price = price;
-    product.priceAfterDiscount = priceAfterDiscount;
-  } else if (discount) {
-    const priceAfterDiscount = product.price * (1 - (discount || 0) / 100);
-
-    product.priceAfterDiscount = priceAfterDiscount;
-    product.discount = discount;
-  }
+  if (section) product.section = section;
+  if (location) product.location = location;
+  if (youtubeURL) product.youtubeURL = youtubeURL;
+  if (descLocation) product.descLocation = descLocation;
+  if (rentDeatils) product.rentDeatils = rentDeatils;
+  if (propertyDesc) product.propertyDesc = propertyDesc;
+  if (status) product.status = status;
+  if (caption) product.caption = caption;
+  if (price) product.price = price;
+  product.updatedBy = _id;
 
   //   =============change image==============
 
@@ -143,9 +162,6 @@ export const updateproduct = async (req, res, next) => {
     product.Images = imagesArr;
   }
 
-  if (caption) product.caption = caption;
-  if (size) product.size = size;
-  if (weight) product.weight = weight;
   // save all changes
   await product.save();
 
@@ -158,14 +174,17 @@ export const updateproduct = async (req, res, next) => {
 // ======================delete product ==================
 
 export const deleteProduct = async (req, res, next) => {
+  const { _id } = req.user;
   const { productId, categoryId } = req.query;
-  const category = await categoryModel.findById(categoryId);
-  if (!category) {
+  const product = await productModel.findOneAndDelete({
+    _id: productId,
+    createdBy: _id,
+  });
+  if (!product) {
     return next(new Error("invalid category id ", { cause: 404 }));
   }
-
-  const product = await productModel.findByIdAndDelete(productId);
-  if (!product) {
+  const category = await categoryModel.findById(product.categoryId);
+  if (!category) {
     return next(new Error("invalid category id ", { cause: 404 }));
   }
 
@@ -182,47 +201,103 @@ export const deleteProduct = async (req, res, next) => {
   });
 };
 
+// =========================accept product====================
+export const acceptProduct = async (req, res, next) => {
+  const { _id } = req.user;
+  const { productId } = req.query;
+  const product = await productModel.findOneAndUpdate(
+    { _id: productId, isAccepted: false },
+    {
+      isAccepted: true,
+    },
+    {
+      new: true,
+    }
+  );
+  if (!product) {
+    return next(
+      new Error("invalid product  id OR it already accepted ", { cause: 404 })
+    );
+  }
+  return res.status(200).json({
+    message: "Done",
+    product,
+  });
+};
 // ===================get All product==============
 
 export const getAllProducts = async (req, res, next) => {
-  const products = await productModel.find();
+  const apiFeaturesInistant = new ApiFeature(productModel.find(), req.query)
+    .paginated()
+    .sort()
+    .select()
+    .filters()
+    .search();
 
+  const products = await apiFeaturesInistant.mongooseQuery
+    .populate({
+      path: "createdBy",
+      select: "email phoneNumber",
+    })
+    .populate({
+      path: "categoryId",
+      select: "name slug ",
+    });
+  const paginationInfo = await apiFeaturesInistant.paginationInfo;
+  const all = await productModel.find().count();
+  const totalPages = Math.ceil(all / paginationInfo.perPages);
+  paginationInfo.totalPages = totalPages;
   if (products.length) {
     return res.status(200).json({
       message: "Done",
-      products,
+      data: products,
+      paginationInfo,
     });
   }
   res.status(200).json({
     message: "No Items yet",
   });
 };
-
 // ===================get  product by category name==============
 
 export const getProductsByCategory = async (req, res, next) => {
   const { categoryName } = req.params;
-  const category = await categoryModel.findOne({
-    slug: categoryName.toLowerCase(),
-  });
+  const category = await categoryModel.findOne({ slug: categoryName });
   if (!category) {
-    return next(new Error("invalid category Name ", { cause: 404 }));
+    return next(new Error("invalid category name ", { cause: 404 }));
   }
+  const apiFeaturesInistant = new ApiFeature(
+    productModel.find({ categoryId: category._id }),
+    req.query
+  )
+    .paginated()
+    .sort()
+    .select()
+    .filters()
+    .search();
 
-  const products = await productModel.aggregate([
-    {
-      $match: { categoryId: category._id },
-    },
-  ]);
-
+  const products = await apiFeaturesInistant.mongooseQuery
+    .populate({
+      path: "createdBy",
+      select: "email phoneNumber",
+    })
+    .populate({
+      path: "categoryId",
+      select: "name slug ",
+    });
+  const paginationInfo = await apiFeaturesInistant.paginationInfo;
+  const all = await productModel.find().count();
+  const totalPages = Math.ceil(all / paginationInfo.perPages);
+  paginationInfo.totalPages = totalPages;
   if (products.length) {
     return res.status(200).json({
       message: "Done",
-      products,
+      data: products,
+      paginationInfo,
     });
   }
   res.status(200).json({
-    message: "Invalid",
+    message: "No Items yet",
   });
 };
 
@@ -240,9 +315,14 @@ export const getProductDetails = async (req, res, next) => {
     return next(new Error("invalid product id ", { cause: 404 }));
   }
 
-  const products = await productModel.findOne({
-    $and: [{ categoryId: category._id }, { _id: productId }],
-  });
+  const products = await productModel
+    .findOne({
+      $and: [{ categoryId: category._id }, { _id: productId }],
+    })
+    .populate({
+      path: "categoryId",
+      select: "name slug ",
+    });
   if (products) {
     return res.status(200).json({
       message: "Done",

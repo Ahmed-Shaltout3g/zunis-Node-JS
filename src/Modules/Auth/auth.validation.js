@@ -13,6 +13,13 @@ export const signUpVaildation = {
         .required(),
       password: joi.string().required(),
       cpassword: joi.string().valid(joi.ref("password")).required(),
+      typeOfUser: joi
+        .string()
+        .valid("owner of real estate", "marketing company", "other")
+        .required(),
+      phoneNumber: joi
+        .string()
+        .regex(/^(?:\+?20|0)(?:1\d{9}|7\d{8}|8\d{8}|9\d{8})$/),
     }),
 };
 

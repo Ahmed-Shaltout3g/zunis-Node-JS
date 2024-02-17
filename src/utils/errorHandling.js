@@ -3,11 +3,11 @@ const asyncHandler = (API) => {
   return (req, res, next) => {
     API(req, res, next).catch((err) => {
       stackVar = err.stack;
-      if (err.code == 11000) {
-        next(new Error("Email already exist", { cause: 400 }));
-      } else {
-        return next(new Error(err.message));
-      }
+      // if (err.code == 11000) {
+      //   next(new Error("Email already exist", { cause: 400 }));
+      // } else {
+      return next(new Error(err.message));
+      // }
     });
   };
 };

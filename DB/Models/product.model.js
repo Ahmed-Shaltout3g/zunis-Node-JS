@@ -16,15 +16,6 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
-    discount: {
-      type: Number,
-      default: 0,
-    },
-    priceAfterDiscount: {
-      type: Number,
-      default: 0,
-    },
-
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
@@ -35,19 +26,61 @@ const productSchema = new Schema(
         public_id: { type: String, required: true },
       },
     ],
-
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    customId: String,
-    seen: {
-      type: Number,
-      default: 0,
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
+    customId: String,
 
-    size: [String],
-    weight: [String],
+    // ========================new==================
+    section: {
+      type: String,
+      required: true,
+      enum: ["rent", "sale"],
+    },
+    rentDeatils: {
+      priceInDay: Number,
+      priceInMonth: Number,
+      priceInYear: Number,
+      desc: String,
+    },
+    propertyDesc: {
+      size: Number,
+      view: String,
+      bedrooms: Number,
+      bathrooms: Number,
+      finishingType: {
+        type: String,
+        enum: ["super lux", "lux", "without finished", "Garden", "other"],
+      },
+      yearOfConstruction: Number,
+      shahrAqary: {
+        type: String,
+        enum: ["registered", "eligible", "not sure"],
+      },
+      floor: Number,
+    },
+    PaymentMethod: {
+      type: String,
+      enum: ["cash", "installments", "both"],
+    },
+    status: { type: String, enum: ["available", "sold"], default: "available" },
+    location: {
+      type: String,
+      required: true,
+    },
+    descLocation: {
+      type: String,
+      required: true,
+    },
+    youtubeURL: {
+      type: String,
+    },
+    isAccepted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
