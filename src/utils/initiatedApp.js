@@ -11,9 +11,9 @@ export const initatApp = (express, app) => {
   app.use("/category", allRoutes.catagoryRoutes);
   app.use("/auth", allRoutes.authRoutes);
   app.use("/product", allRoutes.productRoutes);
-
-  // app.use("/brand", allRoutes.brandRoutes);
-
+  app.use("/", (req, res) => {
+    res.status(200).json({ message: "Welcome" });
+  });
   app.all("*", (req, res) => {
     res.status(404).json({ message: "Not Found" });
   });
