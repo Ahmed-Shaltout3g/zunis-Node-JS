@@ -23,6 +23,7 @@ export const createCategory = async (req, res, next) => {
       folder: `${process.env.ECOMMERCE_FOLDER}/Categories/${customId}`,
     }
   );
+  req.ImagePath = `${process.env.ECOMMERCE_FOLDER}/Categories/${customId}`;
 
   const categoryObject = {
     name,
@@ -35,11 +36,14 @@ export const createCategory = async (req, res, next) => {
     createdBy: _id,
   };
   const createCategory = await categoryModel.create(categoryObject);
+  req.failedDocument = { model: categoryModel, _id: createCategory._id };
+
   if (!createCategory) {
     await cloudinary.uploader.destroy(public_id); //delete the image
     await cloudinary.api.delete_folder(
       `${process.env.ECOMMERCE_FOLDER}/Categories/${customId}` ///delete folder  'api.delete'
     );
+
     return next(new Error("fail", { cause: 400 }));
   }
   res.status(201).json({
@@ -48,10 +52,12 @@ export const createCategory = async (req, res, next) => {
   });
 };
 
-// ========================update category============================
+// ==== ====================update category============================
 
 export const updateCategory = async (req, res, next) => {
   const { categoryId } = req.query;
+  const { _id } = req.user;
+
   const category = await categoryModel.findById(categoryId);
   if (!category) {
     return next(new Error("invalid category id ", { cause: 404 }));
@@ -59,7 +65,6 @@ export const updateCategory = async (req, res, next) => {
 
   // ======================  change name =======================
   const { name } = req.body;
-
   if (name) {
     // new category name not same old name
     if (name.toLowerCase() == category.name) {
@@ -99,6 +104,7 @@ export const updateCategory = async (req, res, next) => {
     category.image = { secure_url, public_id };
   }
   // save all changes
+  category.updatedBy = _id;
   await category.save();
 
   res.status(200).json({
@@ -110,7 +116,12 @@ export const updateCategory = async (req, res, next) => {
 // ====================delete category=================
 export const deleteCategory = async (req, res, next) => {
   const { categoryId } = req.query;
-  const category = await categoryModel.findByIdAndDelete(categoryId);
+  const { _id } = req.user;
+
+  const category = await categoryModel.findOneAndDelete({
+    _id: categoryId,
+    createdBy: _id,
+  });
   if (!category) {
     return next(new Error("invalid category id ", { cause: 404 }));
   }

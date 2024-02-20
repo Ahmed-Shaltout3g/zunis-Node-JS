@@ -1,13 +1,29 @@
+import cloudinary from "./cloudinaryConfigration.js";
+
 let stackVar;
+
 const asyncHandler = (API) => {
   return (req, res, next) => {
-    API(req, res, next).catch((err) => {
+    API(req, res, next).catch(async (err) => {
       stackVar = err.stack;
-      // if (err.code == 11000) {
-      //   next(new Error("Email already exist", { cause: 400 }));
-      // } else {
-      return next(new Error(err.message));
-      // }
+      if (req.method != "GET") {
+        if (req.file) {
+          if (req.ImagePath) {
+            await cloudinary.api.delete_resources_by_prefix(req.ImagePath);
+            await cloudinary.api.delete_folder(req.ImagePath);
+          }
+        }
+      }
+
+      if (req.failedDocument) {
+        const { model, _id } = req.failedDocument;
+        await model.findByIdAndDelete(_id);
+      }
+      if (err.code == 11000) {
+        next(new Error("Email already exist", { cause: 400 }));
+      } else {
+        return next(new Error(err.message));
+      }
     });
   };
 };

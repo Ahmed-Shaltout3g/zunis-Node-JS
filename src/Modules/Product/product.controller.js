@@ -51,7 +51,7 @@ export const createProduct = async (req, res, next) => {
     imagesArr.push({ secure_url, public_id });
     publicIdsArr.push(public_id);
   }
-
+  req.ImagePath = `${process.env.ECOMMERCE_FOLDER}/Categories/${category.customId}/products/${customId}`;
   const productObject = {
     title,
     section,
@@ -70,6 +70,8 @@ export const createProduct = async (req, res, next) => {
   };
 
   const createProduct = await productModel.create(productObject);
+  req.failedDocument = { model: productModel, _id: createProduct._id };
+
   if (!createProduct) {
     await cloudinary.api.delete_resources_by_prefix(
       `${process.env.ECOMMERCE_FOLDER}/Categories/${category.customId}/products/${customId}` ///delete folder  'api.delete'

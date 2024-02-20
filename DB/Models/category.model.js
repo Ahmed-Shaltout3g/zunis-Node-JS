@@ -9,6 +9,10 @@ const categorySchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Uesr",
+    },
     slug: {
       type: String,
       required: true,

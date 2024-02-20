@@ -20,12 +20,18 @@ router.post(
 
 router.put(
   "/update",
-
+  Auth(),
+  authorization([systemRoles.ADMIN, systemRoles.USER]),
   myMulter(allowedExtensions.Image).single("image"),
 
   asyncHandler(CategoryController.updateCategory)
 );
-router.delete("/delete", asyncHandler(CategoryController.deleteCategory));
+router.delete(
+  "/delete",
+  Auth(),
+  authorization([systemRoles.ADMIN, systemRoles.USER]),
+  asyncHandler(CategoryController.deleteCategory)
+);
 router.get("/", asyncHandler(CategoryController.getAllCategory));
 
 export default router;
