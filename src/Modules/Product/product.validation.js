@@ -16,7 +16,7 @@ export const createProductVaildation = {
       propertyDesc: joi
         .object({
           size: joi.number().positive().min(20).required(),
-          view: joi.string().required(),
+          view: joi.string(),
           bedrooms: joi.number().positive(),
           bathrooms: joi.number().positive(),
           finishingType: joi
