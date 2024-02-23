@@ -1,11 +1,9 @@
 import multer from "multer";
+import allowedExtensions from "../utils/allowedExtention.js";
 
-const validation = {
-  image: ["image/jpeg", "image/png"],
-  file: ["Application/pdf"],
-};
-
-export const myMulter = ({ customValidation = validation.image } = {}) => {
+export const myMulter = ({
+  customValidation = allowedExtensions.Image,
+} = {}) => {
   const storage = multer.diskStorage({});
 
   const fileFilter = (req, file, cb) => {
