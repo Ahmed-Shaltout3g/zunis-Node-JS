@@ -17,18 +17,17 @@ export const createProductVaildation = {
         .object({
           size: joi.number().positive().min(20).required(),
           view: joi.string().required(),
-          bedrooms: joi.number().positive().required(),
-          bathrooms: joi.number().positive().required(),
+          bedrooms: joi.number().positive(),
+          bathrooms: joi.number().positive(),
           finishingType: joi
             .string()
-            .valid("super lux", "lux", "without finished", "Garden", "other")
-            .required(),
-          yearOfConstruction: joi.number().positive().required(),
+            .valid("super lux", "lux", "without finished", "Garden", "other"),
+          yearOfConstruction: joi.number().positive(),
           shahrAqary: joi
             .string()
             .valid("registered", "eligible", "not sure")
             .required(),
-          floor: joi.number().positive().required(),
+          floor: joi.number().positive(),
         })
         .required(),
       PaymentMethod: joi
