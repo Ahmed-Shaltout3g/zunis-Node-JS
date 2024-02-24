@@ -63,6 +63,7 @@ export class ApiFeature {
             { title: { $regex: this.queryData.search, $options: "i" } },
             { caption: { $regex: this.queryData.search, $options: "i" } },
             { descLocation: { $regex: this.queryData.search, $options: "i" } },
+            { location: { $regex: this.queryData.search, $options: "i" } },
           ],
         })
       : "";
