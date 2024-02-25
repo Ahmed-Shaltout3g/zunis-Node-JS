@@ -324,6 +324,10 @@ export const getProductDetails = async (req, res, next) => {
     .populate({
       path: "categoryId",
       select: "name slug ",
+    })
+    .populate({
+      path: "createdBy",
+      select: "email phoneNumber",
     });
   if (products) {
     return res.status(200).json({
