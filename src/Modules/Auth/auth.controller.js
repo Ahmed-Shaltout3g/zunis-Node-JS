@@ -56,12 +56,10 @@ export const signUp = async (req, res, next) => {
       // const newUser = await new userModel({
 
       // });
-      console.log(password);
       const encryptPassword = encryptText(
         password,
         process.env.CRYPTO_SECRET_KEY
       );
-      console.log(encryptPassword);
 
       const token = generateToken({
         payload: {
