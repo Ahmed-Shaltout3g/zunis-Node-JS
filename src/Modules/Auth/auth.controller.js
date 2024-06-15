@@ -1,48 +1,148 @@
 import userModel from "../../../DB/Models/user.model.js";
+import { sendEmail } from "../../services/sendEmail.js";
+import { emailTemplate } from "../../utils/emailTemplate.js";
+import { decryptText, encryptText } from "../../utils/encryptionFunction.js";
 import { comparePassword, hashingPassword } from "../../utils/hashing.js";
 import { decodeToken, generateToken } from "../../utils/tokenFunctions.js";
 import bcrypt from "bcrypt";
 
 // ______________________________signUp___________________________
+// export const signUp = async (req, res, next) => {
+//   const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
+//     req.body;
+//   if (password == cpassword) {
+//     const user = await userModel.findOne({ email });
+//     if (user) {
+//       next(new Error("Email Already Exist", { cause: 401 }));
+//     } else {
+//       const newUser = await new userModel({
+//         fullName,
+//         email,
+//         password,
+//         phoneNumber,
+//         typeOfUser,
+//       });
+
+//       const user = await newUser.save();
+//       req.failedDocument = { model: userModel, _id: newUser._id };
+
+//       if (user) {
+//         return res
+//           .status(201)
+//           .json({ message: "Sign up success please try to login" });
+//       } else {
+//         next(new Error("fail", { cause: 400 }));
+//       }
+//     }
+//   } else {
+//     next(new Error("password must match Cpassword", { cause: 401 }));
+//   }
+// };
 export const signUp = async (req, res, next) => {
-  const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
-    req.body;
+  const {
+    fullName,
+    email,
+    password,
+    phoneNumber,
+    cpassword,
+    typeOfUser,
+    role,
+  } = req.body;
   if (password == cpassword) {
     const user = await userModel.findOne({ email });
     if (user) {
       next(new Error("Email Already Exist", { cause: 401 }));
     } else {
-      const newUser = await new userModel({
-        fullName,
-        email,
+      // const newUser = await new userModel({
+
+      // });
+      const encryptPassword = encryptText(
         password,
-        phoneNumber,
-        typeOfUser,
+        process.env.CRYPTO_SECRET_KEY
+      );
+
+      const token = generateToken({
+        payload: {
+          fullName,
+          email,
+          password: encryptPassword,
+          phoneNumber,
+          cpassword,
+          typeOfUser,
+          role,
+        },
       });
+      if (token) {
+        const confirmationLink = `${req.protocol}://${req.headers.host}/auth/confirmEmail/${token}`;
 
-      const user = await newUser.save();
-      req.failedDocument = { model: userModel, _id: newUser._id };
-
-      if (user) {
-        return res
-          .status(201)
-          .json({ message: "Sign up success please try to login" });
+        // const message = `<a href=${confirmationLink}>click here</a>`;
+        const emailSent = await sendEmail({
+          to: email,
+          subject: "Confirmation email",
+          message: emailTemplate({
+            link: confirmationLink,
+            linkData: "Click to Confirm",
+            subject: "confirmation email ",
+          }),
+        });
+        console.log(emailSent);
+        if (emailSent) {
+          // await newUser.save();
+          return res
+            .status(201)
+            .json({ message: "Sign up success please confirm email" });
+        } else {
+          next(new Error("Send Email Fail please try again", { cause: 500 }));
+        }
       } else {
-        next(new Error("fail", { cause: 400 }));
+        next(new Error("Token generastion fail", { cause: 400 }));
       }
     }
   } else {
-    next(new Error("password must match Cpassword", { cause: 401 }));
+    next(new Error("password must match repassword", { cause: 401 }));
   }
 };
 
+// _____________________confirmEmail________________________
+
+export const confirmEmail = async (req, res, next) => {
+  const { token } = req.params;
+  const decode = decodeToken({ payload: token });
+  const checkConfirm = await userModel.findOne({
+    email: decode.email,
+    isConfirmed: true,
+  });
+  if (checkConfirm) {
+    next(new Error("Already confirmed", { cause: 400 }));
+  }
+  if (decode) {
+    const decryptPass = decryptText(
+      decode?.password,
+      process.env.CRYPTO_SECRET_KEY
+    );
+    decode.isConfirmed = true;
+    decode.password = decryptPass;
+    const confirmUser = new userModel({
+      ...decode,
+    });
+    await confirmUser.save();
+    res
+      .status(200)
+      .json({ message: "Confirmation success ,please try to Login" });
+  } else {
+    next(new Error("unknown error ,please try again", { cause: 500 }));
+  }
+};
 // ______________________________login________________________________
 
 export const login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
   const user = await userModel.findOne({ email });
   if (!user) {
     return next(new Error("In-valid email or password", { cause: 400 }));
+  }
+  if (role != user.role) {
+    return next(new Error("User Not Found With This Role!", { cause: 400 }));
   }
   const match = bcrypt.compareSync(password, user.password);
   if (!match) {
@@ -123,3 +223,4 @@ export const resetPassword = async (req, res, next) => {
     }
   }
 };
+// _______________________________________________________--

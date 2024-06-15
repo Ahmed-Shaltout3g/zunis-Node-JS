@@ -226,6 +226,7 @@ export const acceptProduct = async (req, res, next) => {
     product,
   });
 };
+
 // ===================get All product==============
 
 export const getAllProducts = async (req, res, next) => {
@@ -324,10 +325,6 @@ export const getProductDetails = async (req, res, next) => {
     .populate({
       path: "categoryId",
       select: "name slug ",
-    })
-    .populate({
-      path: "createdBy",
-      select: "email phoneNumber",
     });
   if (products) {
     return res.status(200).json({

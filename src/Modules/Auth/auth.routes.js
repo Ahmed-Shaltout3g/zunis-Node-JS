@@ -15,7 +15,7 @@ router.post(
   validation(validations.signInVaildation),
   asyncHandler(allRoutes.login)
 );
-
+router.get("/confirmEmail/:token", asyncHandler(allRoutes.confirmEmail));
 router.get("/forget", asyncHandler(allRoutes.forgetPass));
 
 router.post("/resetpassword/:token", asyncHandler(allRoutes.resetPassword));

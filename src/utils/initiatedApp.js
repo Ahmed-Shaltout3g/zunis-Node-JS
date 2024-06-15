@@ -11,6 +11,8 @@ export const initatApp = (express, app) => {
   app.use("/category", allRoutes.catagoryRoutes);
   app.use("/auth", allRoutes.authRoutes);
   app.use("/product", allRoutes.productRoutes);
+  app.use("/message", allRoutes.messageRoutes);
+
   app.use("/", (req, res) => {
     res.status(200).json({ message: "Welcome" });
   });

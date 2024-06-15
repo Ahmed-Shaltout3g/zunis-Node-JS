@@ -17,6 +17,7 @@ export const signUpVaildation = {
         .string()
         .valid("owner of real estate", "marketing company", "other")
         .required(),
+      role: joi.string().valid("Admin", "User").optional(),
       phoneNumber: joi
         .string()
         .regex(/^(?:\+?20|0)(?:1\d{9}|7\d{8}|8\d{8}|9\d{8})$/),
@@ -33,5 +34,6 @@ export const signInVaildation = {
         .email({ tlds: { allow: ["com", "net"] } })
         .required(),
       password: joi.string().required(),
+      role: joi.string().valid("Admin", "User").required(),
     }),
 };

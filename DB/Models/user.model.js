@@ -29,6 +29,10 @@ const userSchema = new Schema(
       required: true,
       enum: ["owner of real estate", "marketing company", "other"],
     },
+    isConfirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
