@@ -73,7 +73,7 @@ export const signUp = async (req, res, next) => {
         },
       });
       if (token) {
-        const confirmationLink = `http://localhost:3000/Sakan#/auth/confirmEmail/${token}`;
+        const confirmationLink = `${req.protocol}://${req.headers.host}/auth/confirmEmail/${token}`;
         // ${req.protocol}://${req.headers.host}
         // const message = `<a href=${confirmationLink}>click here</a>`;
         const emailSent = await sendEmail({
@@ -107,7 +107,10 @@ export const signUp = async (req, res, next) => {
 
 export const confirmEmail = async (req, res, next) => {
   const { token } = req.params;
-  const decode = decodeToken({ payload: token });
+  const decode = decodeToken({
+    payload: token,
+    signature: process.env.TOKEN_KEY,
+  });
   const checkConfirm = await userModel.findOne({
     email: decode.email,
     isConfirmed: true,
@@ -129,8 +132,10 @@ export const confirmEmail = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "Confirmation success ,please try to Login" });
+    res.redirect(`${process.env.FRONTEND_URL}/confirmation-success`);
   } else {
     next(new Error("unknown error ,please try again", { cause: 500 }));
+    res.redirect(`${process.env.FRONTEND_URL}/confirmation-failure`);
   }
 };
 // ______________________________login________________________________
