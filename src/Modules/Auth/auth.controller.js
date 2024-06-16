@@ -73,7 +73,7 @@ export const signUp = async (req, res, next) => {
         },
       });
       if (token) {
-        const confirmationLink = `http://localhost:3000/auth/confirmEmail/${token}`;
+        const confirmationLink = `http://localhost:3000/Sakan#/auth/confirmEmail/${token}`;
         // ${req.protocol}://${req.headers.host}
         // const message = `<a href=${confirmationLink}>click here</a>`;
         const emailSent = await sendEmail({
