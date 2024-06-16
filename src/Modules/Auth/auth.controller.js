@@ -129,7 +129,6 @@ export const confirmEmail = async (req, res, next) => {
       ...decode,
     });
     await confirmUser.save();
-
     res.redirect(`${process.env.FRONTEND_URL}#/confirmation-success`);
   } else {
     res.redirect(`${process.env.FRONTEND_URL}#/confirmation-failure`);
