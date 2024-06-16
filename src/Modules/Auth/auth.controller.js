@@ -116,7 +116,7 @@ export const confirmEmail = async (req, res, next) => {
     isConfirmed: true,
   });
   if (checkConfirm) {
-    next(new Error("Already confirmed", { cause: 400 }));
+    res.redirect(`${process.env.FRONTEND_URL}#/confirmation-success`);
   }
   if (decode) {
     const decryptPass = decryptText(
@@ -129,13 +129,10 @@ export const confirmEmail = async (req, res, next) => {
       ...decode,
     });
     await confirmUser.save();
-    res
-      .status(200)
-      .json({ message: "Confirmation success ,please try to Login" });
-    res.redirect(`${process.env.FRONTEND_URL}/confirmation-success`);
+
+    res.redirect(`${process.env.FRONTEND_URL}#/confirmation-success`);
   } else {
-    next(new Error("unknown error ,please try again", { cause: 500 }));
-    res.redirect(`${process.env.FRONTEND_URL}/confirmation-failure`);
+    res.redirect(`${process.env.FRONTEND_URL}#/confirmation-failure`);
   }
 };
 // ______________________________login________________________________
