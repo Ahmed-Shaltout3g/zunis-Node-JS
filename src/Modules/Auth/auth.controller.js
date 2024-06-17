@@ -152,7 +152,8 @@ export const login = async (req, res, next) => {
   const token = generateToken({
     payload: {
       _id: user._id,
-      fullName: user.firstName,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
       email: user.email,
       role: user.role,
     },
