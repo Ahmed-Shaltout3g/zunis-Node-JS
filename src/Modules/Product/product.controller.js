@@ -177,12 +177,12 @@ export const updateproduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   const { _id } = req.user;
-  const { productId, categoryId } = req.query;
+  const { productId } = req.query;
   const product = await productModel.findOneAndDelete({
     _id: productId,
   });
   if (!product) {
-    return next(new Error("invalid category id ", { cause: 404 }));
+    return next(new Error("invalid product id ", { cause: 404 }));
   }
   const category = await categoryModel.findById(product.categoryId);
   if (!category) {
