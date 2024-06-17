@@ -180,7 +180,6 @@ export const deleteProduct = async (req, res, next) => {
   const { productId, categoryId } = req.query;
   const product = await productModel.findOneAndDelete({
     _id: productId,
-    createdBy: _id,
   });
   if (!product) {
     return next(new Error("invalid category id ", { cause: 404 }));
