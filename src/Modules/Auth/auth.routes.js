@@ -10,6 +10,7 @@ router.post(
   validation(validations.signUpVaildation),
   asyncHandler(allRoutes.signUp)
 );
+
 router.post(
   "/signin",
   validation(validations.signInVaildation),
@@ -19,5 +20,9 @@ router.get("/confirmEmail/:token", asyncHandler(allRoutes.confirmEmail));
 router.get("/forget", asyncHandler(allRoutes.forgetPass));
 
 router.post("/resetpassword/:token", asyncHandler(allRoutes.resetPassword));
-
+router.post(
+  "/adminAddUser",
+  validation(validations.signUpVaildation),
+  asyncHandler(allRoutes.AdminAddUser)
+);
 export default router;

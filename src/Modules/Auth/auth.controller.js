@@ -6,38 +6,6 @@ import { comparePassword, hashingPassword } from "../../utils/hashing.js";
 import { decodeToken, generateToken } from "../../utils/tokenFunctions.js";
 import bcrypt from "bcrypt";
 
-// ______________________________signUp___________________________
-// export const signUp = async (req, res, next) => {
-//   const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
-//     req.body;
-//   if (password == cpassword) {
-//     const user = await userModel.findOne({ email });
-//     if (user) {
-//       next(new Error("Email Already Exist", { cause: 401 }));
-//     } else {
-//       const newUser = await new userModel({
-//         fullName,
-//         email,
-//         password,
-//         phoneNumber,
-//         typeOfUser,
-//       });
-
-//       const user = await newUser.save();
-//       req.failedDocument = { model: userModel, _id: newUser._id };
-
-//       if (user) {
-//         return res
-//           .status(201)
-//           .json({ message: "Sign up success please try to login" });
-//       } else {
-//         next(new Error("fail", { cause: 400 }));
-//       }
-//     }
-//   } else {
-//     next(new Error("password must match Cpassword", { cause: 401 }));
-//   }
-// };
 export const signUp = async (req, res, next) => {
   const {
     fullName,
@@ -226,3 +194,35 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 // _______________________________________________________--
+// ______________________________Admin Add User___________________________
+export const AdminAddUser = async (req, res, next) => {
+  const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
+    req.body;
+  if (password == cpassword) {
+    const user = await userModel.findOne({ email });
+    if (user) {
+      next(new Error("Email Already Exist", { cause: 401 }));
+    } else {
+      const newUser = await new userModel({
+        fullName,
+        email,
+        password,
+        phoneNumber,
+        typeOfUser,
+      });
+
+      const user = await newUser.save();
+      req.failedDocument = { model: userModel, _id: newUser._id };
+
+      if (user) {
+        return res
+          .status(201)
+          .json({ message: "Sign up success please try to login" });
+      } else {
+        next(new Error("fail", { cause: 400 }));
+      }
+    }
+  } else {
+    next(new Error("password must match Cpassword", { cause: 401 }));
+  }
+};

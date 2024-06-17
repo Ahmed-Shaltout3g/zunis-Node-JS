@@ -176,11 +176,11 @@ export const updateproduct = async (req, res, next) => {
 // ======================delete product ==================
 
 export const deleteProduct = async (req, res, next) => {
-  const { _id } = req.user;
   const { productId } = req.query;
   const product = await productModel.findOneAndDelete({
     _id: productId,
   });
+
   if (!product) {
     return next(new Error("invalid product id ", { cause: 404 }));
   }
@@ -200,6 +200,7 @@ export const deleteProduct = async (req, res, next) => {
   res.status(200).json({
     message: "product deleted successfuly",
   });
+  console.log(product);
 };
 
 // =========================accept product====================

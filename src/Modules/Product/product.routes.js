@@ -31,7 +31,7 @@ router.put(
   asyncHandler(allRoutes.acceptProduct)
 );
 
-router.delete("/delete", Auth(), asyncHandler(allRoutes.deleteProduct));
+router.delete("/delete", asyncHandler(allRoutes.deleteProduct));
 
 router.get("/", asyncHandler(allRoutes.getAllProducts));
 router.get("/:categoryName", asyncHandler(allRoutes.getProductsByCategory));
