@@ -196,8 +196,15 @@ export const resetPassword = async (req, res, next) => {
 // _______________________________________________________--
 // ______________________________Admin Add User___________________________
 export const AdminAddUser = async (req, res, next) => {
-  const { fullName, email, password, phoneNumber, cpassword, typeOfUser } =
-    req.body;
+  const {
+    fullName,
+    email,
+    password,
+    phoneNumber,
+    cpassword,
+    typeOfUser,
+    role,
+  } = req.body;
   if (password == cpassword) {
     const user = await userModel.findOne({ email });
     if (user) {
@@ -209,6 +216,7 @@ export const AdminAddUser = async (req, res, next) => {
         password,
         phoneNumber,
         typeOfUser,
+        role,
       });
 
       const user = await newUser.save();
