@@ -303,7 +303,6 @@ export const getProductsByCategory = async (req, res, next) => {
     message: "No Items yet",
   });
 };
-
 // ====================get product details==============
 export const getProductDetails = async (req, res, next) => {
   const { categoryName, productId } = req.params;
