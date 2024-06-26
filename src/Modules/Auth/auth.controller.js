@@ -220,7 +220,6 @@ export const AdminAddUser = async (req, res, next) => {
       });
 
       const user = await newUser.save();
-      req.failedDocument = { model: userModel, _id: newUser._id };
 
       if (user) {
         return res
